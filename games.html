@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ConsultPro — People Management Challenge</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#060912; --s1:rgba(255,255,255,0.04); --s2:rgba(255,255,255,0.07);
+  --bd:rgba(255,255,255,0.09); --bd2:rgba(255,255,255,0.16);
+  --tx:#e8edf5; --mu:#6b7a99;
+  --ac:#4f7dff; --ac2:#7c5af7;
+  --gr:#00e5a0; --am:#ffb340; --rd:#ff4d6d; --gd:#ffd700;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(79,125,255,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(79,125,255,0.04) 1px,transparent 1px);background-size:44px 44px;z-index:0;pointer-events:none;}
+body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 55% 45% at 10% 10%,rgba(79,125,255,0.13) 0%,transparent 60%),radial-gradient(ellipse 45% 55% at 90% 90%,rgba(124,90,247,0.1) 0%,transparent 60%);z-index:0;pointer-events:none;}
+.z{position:relative;z-index:1;}
+
+/* SCREENS */
+.scr{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
+.scr.off{display:none;}
+
+/* LOGIN */
+.login-box{width:100%;max-width:440px;background:rgba(255,255,255,0.03);border:1px solid var(--bd2);border-radius:24px;padding:48px 40px;text-align:center;animation:fup .5s ease;}
+@keyframes fup{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.logo-icon{width:68px;height:68px;background:linear-gradient(135deg,var(--ac),var(--ac2));border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:30px;margin:0 auto 22px;box-shadow:0 0 36px rgba(79,125,255,0.3);}
+.login-box h1{font-family:'Syne',sans-serif;font-size:30px;font-weight:800;color:#fff;margin-bottom:6px;}
+.login-box p{font-size:14px;color:var(--mu);margin-bottom:30px;line-height:1.6;}
+.login-box input{width:100%;padding:15px 18px;background:rgba(255,255,255,0.06);border:1px solid var(--bd2);border-radius:13px;color:#fff;font-size:16px;font-family:'DM Sans',sans-serif;outline:none;margin-bottom:14px;transition:border-color .2s,box-shadow .2s;}
+.login-box input:focus{border-color:var(--ac);box-shadow:0 0 0 3px rgba(79,125,255,0.15);}
+.login-box input::placeholder{color:var(--mu);}
+.btn-join{width:100%;padding:15px;background:linear-gradient(135deg,var(--ac),var(--ac2));border:none;border-radius:13px;color:#fff;font-size:16px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;box-shadow:0 4px 22px rgba(79,125,255,0.3);transition:all .2s;}
+.btn-join:hover{transform:translateY(-1px);box-shadow:0 8px 30px rgba(79,125,255,0.4);}
+.wait-note{margin-top:20px;padding:13px 18px;background:rgba(255,179,64,0.07);border:1px solid rgba(255,179,64,0.2);border-radius:11px;font-size:13px;color:var(--am);display:flex;align-items:center;gap:9px;}
+.pdot{width:8px;height:8px;background:var(--am);border-radius:50%;flex-shrink:0;animation:pd 1.5s infinite;}
+@keyframes pd{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+
+/* WAITING */
+.wait-scr{flex-direction:column;gap:20px;text-align:center;}
+.wait-scr.off{display:none;}
+.wait-scr:not(.off){display:flex;}
+.spin{width:56px;height:56px;border:3px solid var(--bd);border-top-color:var(--ac);border-radius:50%;animation:sp 1s linear infinite;}
+@keyframes sp{to{transform:rotate(360deg)}}
+.wait-scr h2{font-family:'Syne',sans-serif;font-size:24px;color:#fff;}
+.wait-scr p{font-size:14px;color:var(--mu);}
+.wbadge{padding:9px 22px;background:rgba(79,125,255,0.1);border:1px solid rgba(79,125,255,0.25);border-radius:100px;font-size:15px;color:var(--ac);font-weight:500;}
+
+/* COUNTDOWN */
+.cdo{position:fixed;inset:0;background:rgba(6,9,18,.96);z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;backdrop-filter:blur(8px);}
+.cdo.off{display:none;}
+.cdn{font-family:'Syne',sans-serif;font-size:150px;font-weight:800;color:#fff;line-height:1;animation:cpop 1s ease;}
+@keyframes cpop{0%{transform:scale(1.5);opacity:0}20%{transform:scale(1);opacity:1}80%{opacity:1}100%{opacity:0}}
+.cdo p{font-size:17px;color:var(--mu);}
+
+/* GAME SCREEN */
+.game-scr{align-items:flex-start;justify-content:flex-start;padding:14px 0;flex-direction:column;}
+.game-scr.off{display:none;}
+.game-scr:not(.off){display:flex;}
+.gwrap{width:100%;max-width:1280px;padding:0 16px;display:flex;flex-direction:column;gap:12px;}
+
+/* Header */
+.ghdr{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;background:var(--s1);border:1px solid var(--bd);border-radius:15px;padding:13px 22px;}
+.ppill{display:flex;align-items:center;gap:10px;}
+.pav{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0;}
+.plbl{font-size:12px;color:var(--mu);}
+.pnm{font-size:14px;font-weight:600;color:var(--tx);}
+.tctr{text-align:center;}
+.tdigs{font-family:'Syne',sans-serif;font-size:40px;font-weight:800;color:#fff;font-variant-numeric:tabular-nums;line-height:1;transition:color .3s;}
+.tdigs.urg{color:var(--rd);animation:ublk .4s infinite;}
+@keyframes ublk{0%,100%{opacity:1}50%{opacity:.45}}
+.tsub{font-size:10px;color:var(--mu);letter-spacing:1.5px;text-transform:uppercase;margin-top:2px;}
+.hright{text-align:right;font-size:12px;color:var(--mu);}
+.hright span{color:var(--ac);font-weight:600;}
+
+/* Health bar */
+.hbs{background:var(--s1);border:1px solid var(--bd);border-radius:15px;padding:15px 22px;}
+.hbtop{display:flex;justify-content:space-between;align-items:center;margin-bottom:11px;}
+.hbtitle{font-size:12px;color:var(--mu);text-transform:uppercase;letter-spacing:1px;}
+.hbpct{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;color:#fff;}
+.hbpct .unit{font-size:13px;font-weight:400;color:var(--mu);margin-left:3px;}
+.hbtrack{height:11px;background:rgba(255,255,255,0.06);border-radius:6px;overflow:hidden;}
+.hbfill{height:100%;border-radius:6px;transition:width .7s cubic-bezier(.4,0,.2,1),background .5s;position:relative;overflow:hidden;}
+.hbfill::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.15),transparent);animation:shim 2s infinite;}
+@keyframes shim{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+.hbsegs{display:flex;justify-content:space-between;margin-top:6px;}
+.hbsegs span{font-size:10px;color:var(--mu);}
+
+/* Body */
+.gbody{display:grid;grid-template-columns:265px 1fr;gap:12px;}
+
+/* Chars panel */
+.cpanel{background:var(--s1);border:1px solid var(--bd);border-radius:15px;overflow:hidden;display:flex;flex-direction:column;}
+.phdr{padding:13px 15px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;}
+.ptitle{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--mu);}
+.prem{font-size:11px;color:var(--ac);font-weight:600;background:rgba(79,125,255,0.1);padding:3px 9px;border-radius:20px;}
+.clist{flex:1;overflow-y:auto;padding:9px;display:flex;flex-direction:column;gap:5px;max-height:calc(100vh - 330px);}
+.clist::-webkit-scrollbar{width:3px;}
+.clist::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:2px;}
+
+.cc{background:var(--s2);border:1px solid var(--bd);border-radius:11px;padding:9px 11px;cursor:grab;transition:all .2s;user-select:none;position:relative;}
+.cc:hover{border-color:rgba(79,125,255,.4);background:rgba(79,125,255,.08);transform:translateX(3px);}
+.cc.dragging{opacity:.3;cursor:grabbing;}
+.cc.assigned{opacity:.22;cursor:not-allowed;pointer-events:none;}
+.cc.special{border-color:rgba(255,215,0,.3);background:rgba(255,215,0,.05);}
+.cc.special:hover{border-color:rgba(255,215,0,.6);background:rgba(255,215,0,.1);}
+.ctop{display:flex;align-items:center;gap:7px;margin-bottom:5px;}
+.cav{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;}
+.cnm{font-size:12px;font-weight:600;color:var(--tx);flex:1;}
+.crole{font-size:10px;padding:2px 6px;border-radius:7px;background:rgba(255,255,255,.06);color:var(--mu);}
+.cstar{font-size:13px;color:var(--gd);}
+.cskills{display:flex;flex-wrap:wrap;gap:3px;}
+.sp{font-size:9px;padding:2px 6px;border-radius:7px;border:1px solid transparent;}
+.sp.finance{background:rgba(0,229,160,.1);color:#00e5a0;border-color:rgba(0,229,160,.2);}
+.sp.tech{background:rgba(79,125,255,.1);color:#7aabff;border-color:rgba(79,125,255,.2);}
+.sp.people{background:rgba(255,107,181,.1);color:#ff87c7;border-color:rgba(255,107,181,.2);}
+.sp.ops{background:rgba(255,179,64,.1);color:#ffb340;border-color:rgba(255,179,64,.2);}
+.sp.biz{background:rgba(167,139,250,.1);color:#c4b5fd;border-color:rgba(167,139,250,.2);}
+.sp.spl{background:rgba(255,215,0,.1);color:#ffd700;border-color:rgba(255,215,0,.2);}
+
+/* Projects */
+.pgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:11px;overflow-y:auto;max-height:calc(100vh - 330px);}
+.pgrid::-webkit-scrollbar{width:3px;}
+.pgrid::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:2px;}
+
+.pjcard{background:var(--s1);border:1px solid var(--bd);border-radius:15px;padding:14px;display:flex;flex-direction:column;gap:10px;transition:all .2s;}
+.pjcard.dov{border-color:var(--ac)!important;background:rgba(79,125,255,.08)!important;transform:scale(1.01);}
+.pjcard.full{border-color:rgba(0,229,160,.2);background:rgba(0,229,160,.03);}
+
+.pjh{display:flex;align-items:flex-start;gap:11px;}
+.piw{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.pmeta{flex:1;}
+.ptit{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:#fff;margin-bottom:2px;line-height:1.3;}
+.pind{font-size:11px;color:var(--mu);}
+.psc{font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap;}
+.psc.e{background:rgba(255,77,109,.1);color:var(--rd);}
+.psc.p{background:rgba(255,179,64,.1);color:var(--am);}
+.psc.f{background:rgba(0,229,160,.1);color:var(--gr);}
+
+.pneeds{display:flex;flex-wrap:wrap;gap:3px;}
+.nchip{font-size:9px;padding:2px 7px;border-radius:7px;border:1px solid var(--bd2);color:var(--mu);transition:all .3s;}
+.nchip.matched{background:rgba(0,229,160,.12);color:var(--gr);border-color:rgba(0,229,160,.3);}
+
+.pslots{display:flex;flex-direction:column;gap:5px;}
+.slot{border:1px dashed rgba(255,255,255,.1);border-radius:9px;padding:7px 10px;min-height:36px;display:flex;align-items:center;font-size:11px;color:var(--mu);transition:all .2s;}
+.slot.req{border-color:rgba(255,179,64,.2);}
+.slot.occ{border-style:solid;}
+.slot.occ.great{border-color:rgba(0,229,160,.35);background:rgba(0,229,160,.06);}
+.slot.occ.ok{border-color:rgba(255,179,64,.35);background:rgba(255,179,64,.06);}
+.slot.occ.poor{border-color:rgba(255,77,109,.35);background:rgba(255,77,109,.06);}
+.sinn{display:flex;align-items:center;justify-content:space-between;width:100%;gap:7px;}
+.snm{font-size:11px;font-weight:600;color:var(--tx);flex:1;}
+.smb{font-size:9px;padding:2px 6px;border-radius:5px;}
+.smb.great{background:rgba(0,229,160,.15);color:var(--gr);}
+.smb.ok{background:rgba(255,179,64,.15);color:var(--am);}
+.smb.poor{background:rgba(255,77,109,.15);color:var(--rd);}
+.rx{width:20px;height:20px;border-radius:5px;background:rgba(255,77,109,.15);border:none;color:var(--rd);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s;flex-shrink:0;line-height:1;}
+.rx:hover{background:rgba(255,77,109,.3);}
+
+.psrow{display:flex;align-items:center;gap:7px;}
+.psbg{flex:1;height:4px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden;}
+.psfill{height:100%;border-radius:2px;transition:width .6s ease;}
+.pslbl{font-size:10px;color:var(--mu);min-width:30px;text-align:right;}
+
+/* RESULT */
+.res-scr{text-align:center;}
+.res-scr.off{display:none;}
+.rice{font-size:72px;margin-bottom:14px;animation:bi .5s ease;}
+@keyframes bi{0%{transform:scale(0)}60%{transform:scale(1.1)}100%{transform:scale(1)}}
+.res-scr h1{font-family:'Syne',sans-serif;font-size:38px;font-weight:800;color:#fff;margin-bottom:8px;}
+.fscore{font-family:'Syne',sans-serif;font-size:90px;font-weight:800;line-height:1;background:linear-gradient(135deg,var(--ac),var(--ac2),var(--gr));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin:14px 0;}
+.res-scr .sub{font-size:17px;color:var(--mu);margin-bottom:20px;}
+.rmsg{font-size:14px;color:var(--tx);padding:14px 24px;background:var(--s1);border:1px solid var(--bd);border-radius:13px;display:inline-block;}
+
+@media(max-width:860px){.gbody{grid-template-columns:1fr;}.clist{max-height:260px;}.pgrid{grid-template-columns:1fr;max-height:none;}}
+</style>
+</head>
+<body>
+
+<!-- ===== LOGIN ===== -->
+<div class="scr z" id="sLogin">
+  <div class="login-box">
+    <div class="logo-icon">🏢</div>
+    <h1>ConsultPro</h1>
+    <p>People Management Challenge<br>Allocate your team across 6 client companies!</p>
+    <input type="text" id="pInput" placeholder="Enter your full name..." maxlength="30" autocomplete="off"/>
+    <button class="btn-join" onclick="doJoin()">Join the Challenge →</button>
+    <div class="wait-note"><div class="pdot"></div><span>Waiting for host to launch the game</span></div>
+  </div>
+</div>
+
+<!-- ===== WAITING ===== -->
+<div class="scr wait-scr off z" id="sWait">
+  <div class="spin"></div>
+  <h2>You're In! 🎯</h2>
+  <div class="wbadge" id="wbadge">Player</div>
+  <p>Keep this tab open — game starts when host clicks Launch!</p>
+</div>
+
+<!-- ===== COUNTDOWN ===== -->
+<div class="cdo off z" id="sCdo">
+  <div class="cdn" id="cdNum">3</div>
+  <p>Get your strategy ready...</p>
+</div>
+
+<!-- ===== GAME ===== -->
+<div class="scr game-scr off z" id="sGame">
+  <div class="gwrap z">
+    <div class="ghdr">
+      <div class="ppill">
+        <div class="pav" id="pavHdr">?</div>
+        <div><div class="plbl">Consultant</div><div class="pnm" id="pnmHdr">—</div></div>
+      </div>
+      <div class="tctr">
+        <div class="tdigs" id="tdisp">3:00</div>
+        <div class="tsub">Time Remaining</div>
+      </div>
+      <div class="hright">Assigned: <span id="acount">0</span>/18<br><span style="font-size:11px;color:var(--mu);">Min 2 · Max 3 per project</span></div>
+    </div>
+
+    <div class="hbs">
+      <div class="hbtop">
+        <div><div class="hbtitle">Overall Company Health</div><div style="font-size:11px;color:var(--mu);margin-top:2px;">Based on skill match quality across all 6 projects</div></div>
+        <div class="hbpct"><span id="hnum">0</span><span class="unit">%</span></div>
+      </div>
+      <div class="hbtrack"><div class="hbfill" id="hfill" style="width:0%"></div></div>
+      <div class="hbsegs"><span>0%</span><span style="color:var(--rd)">Critical &lt;30%</span><span style="color:var(--am)">Moderate 30–60%</span><span style="color:var(--gr)">Healthy &gt;60%</span><span>100%</span></div>
+    </div>
+
+    <div class="gbody">
+      <div class="cpanel">
+        <div class="phdr"><div class="ptitle">Your Team (18)</div><div class="prem" id="prem">18 left</div></div>
+        <div class="clist" id="clist"></div>
+      </div>
+      <div class="pgrid" id="pgrid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== RESULT ===== -->
+<div class="scr off z" id="sResult">
+  <div class="res-scr">
+    <div class="rice" id="rice">🏆</div>
+    <h1 id="rtitle">Time's Up!</h1>
+    <div class="fscore" id="fscore">0%</div>
+    <div class="sub">Company Health Score</div>
+    <div class="rmsg" id="rmsg">Score submitted to leaderboard!</div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// ⚙️ CONFIG — paste your JSONBin Bin ID and API Key here
+// Get them free at https://jsonbin.io (takes 2 minutes)
+// ============================================================
+const BIN_ID  = "69d76e69aaba882197dcbd7b";
+const API_KEY = "$2a$10$4gJlLWO2AM/MuefBpi/Khudn4SOWrCRt8BnbTvPlSclXAuXqWHTKO";
+const POLL_MS = 1500; // check for game start every 1.5 seconds
+
+// ============================================================
+// DATA
+// ============================================================
+const SCAT = {
+  "Financial Auditing":"finance","Accounting":"finance","Cost Analysis":"finance",
+  "Software Dev":"tech","Systems Integration":"tech","Technical Support":"tech","Data Reporting":"tech",
+  "Leadership":"people","Conflict Resolution":"people","HR Administration":"people",
+  "Quality Control":"ops","Process Optimization":"ops","Inventory Management":"ops","Machine Operation":"ops",
+  "Sales Strategy":"biz","Customer Relations":"biz","Market Analysis":"biz","Negotiation":"biz","Compliance":"finance",
+};
+
+const CHARS = [
+  {id:1, name:"Dharun",          role:"Director",      skills:["Technical Support","Conflict Resolution","Data Reporting"],                                                                                   special:false},
+  {id:2, name:"Kevin",           role:"TL",            skills:["Leadership","Conflict Resolution","Customer Relations"],                                                                                       special:false},
+  {id:3, name:"Varun",           role:"TL",            skills:["Financial Auditing","Cost Analysis","Data Reporting"],                                                                                         special:false},
+  {id:4, name:"Anantha Prakash", role:"Asst. Manager", skills:["Financial Auditing","Accounting","Cost Analysis","Software Dev","Systems Integration","Technical Support","Leadership","Conflict Resolution","HR Administration","Quality Control","Process Optimization","Inventory Management","Sales Strategy","Customer Relations","Market Analysis","Negotiation","Compliance","Data Reporting","Machine Operation"], special:true},
+  {id:5, name:"Dhenish",         role:"TL",            skills:["Software Dev","Systems Integration","Data Reporting"],                                                                                         special:false},
+  {id:6, name:"Adithya",         role:"Consultant",    skills:["Accounting","Cost Analysis","Compliance"],                                                                                                     special:false},
+  {id:7, name:"Amarnath",        role:"Consultant",    skills:["Sales Strategy","Market Analysis","Negotiation"],                                                                                             special:false},
+  {id:8, name:"Aravind M",       role:"Consultant",    skills:["Inventory Management","Process Optimization","Customer Relations"],                                                                           special:false},
+  {id:9, name:"Aravind VV",      role:"Consultant",    skills:["Quality Control","Machine Operation","Process Optimization"],                                                                                 special:false},
+  {id:10,name:"Jeeva Pothish",   role:"Consultant",    skills:["Software Dev","Technical Support","Systems Integration"],                                                                                     special:false},
+  {id:11,name:"Jince",           role:"Consultant",    skills:["Accounting","HR Administration","Compliance"],                                                                                               special:false},
+  {id:12,name:"Lokesh",          role:"TL",            skills:["Technical Support","Process Optimization","Quality Control"],                                                                                 special:false},
+  {id:13,name:"Branish",         role:"Consultant",    skills:["Software Dev","Data Reporting","Market Analysis"],                                                                                           special:false},
+  {id:14,name:"Sivaraman",       role:"TL",            skills:["Financial Auditing","Data Reporting","Cost Analysis","Compliance"],                                                                           special:false},
+  {id:15,name:"Rajkumar",        role:"TL",            skills:["Systems Integration","Technical Support","Data Reporting"],                                                                                   special:false},
+  {id:16,name:"Harriharan",      role:"Consultant",    skills:["Accounting","Customer Relations","HR Administration"],                                                                                       special:false},
+  {id:17,name:"Nithish",         role:"Consultant",    skills:["Software Dev","Market Analysis","Customer Relations"],                                                                                       special:false},
+  {id:18,name:"Jeeva IA",        role:"Consultant",    skills:["Financial Auditing","Inventory Management","Data Reporting"],                                                                                 special:false},
+];
+
+const PROJS = [
+  {id:1,name:"RetailMax: Dying Sales",          industry:"Retail",        icon:"🛍️",color:"#ff6b9d",bg:"rgba(255,107,157,.09)",needs:["Sales Strategy","Customer Relations","Market Analysis","Conflict Resolution"]},
+  {id:2,name:"FabriCore: Production Breakdown", industry:"Manufacturing", icon:"🏭",color:"#ffb340",bg:"rgba(255,179,64,.09)", needs:["Machine Operation","Quality Control","Process Optimization","Technical Support"]},
+  {id:3,name:"GoldVault: Fraud Investigation",  industry:"Gold",          icon:"💰",color:"#ffd700",bg:"rgba(255,215,0,.09)",  needs:["Financial Auditing","Compliance","Cost Analysis","Data Reporting"]},
+  {id:4,name:"PeopleFirst: HR Crisis",           industry:"Retail",        icon:"👥",color:"#c084fc",bg:"rgba(192,132,252,.09)",needs:["HR Administration","Leadership","Conflict Resolution","Compliance"]},
+  {id:5,name:"TechEdge: System Failure",         industry:"Manufacturing", icon:"💻",color:"#4f7dff",bg:"rgba(79,125,255,.09)", needs:["Software Dev","Systems Integration","Technical Support","Data Reporting"]},
+  {id:6,name:"AuraGold: Market Expansion",      industry:"Gold",          icon:"📊",color:"#00e5a0",bg:"rgba(0,229,160,.09)",  needs:["Negotiation","Market Analysis","Financial Auditing","Customer Relations"]},
+];
+
+// ============================================================
+// STATE
+// ============================================================
+let pName="", pKey="";
+let asgn={1:[],2:[],3:[],4:[],5:[],6:[]};
+let active=false, timeLeft=180, tiv=null, dragId=null, health=0;
+let startPollIv=null;
+
+// ============================================================
+// HELPERS
+// ============================================================
+const AVCOLS=['#4f7dff','#7c5af7','#00e5a0','#ffb340','#ff6b9d','#c084fc','#00d2ff','#ff4d6d','#34d399','#f59e0b'];
+function avcol(n){let h=0;for(let c of n)h=(h+c.charCodeAt(0))%AVCOLS.length;return AVCOLS[h];}
+function inits(n){return n.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();}
+function show(id){document.getElementById(id).classList.remove('off');}
+function hide(id){document.getElementById(id).classList.add('off');}
+
+// ============================================================
+// JSONBIN API
+// ============================================================
+async function binGet(){
+  try{
+    const r=await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`,{headers:{'X-Master-Key':API_KEY,'X-Bin-Meta':'false'}});
+    return await r.json();
+  }catch{return null;}
+}
+async function binUpdate(data){
+  try{
+    await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':API_KEY},body:JSON.stringify(data)});
+  }catch(e){console.warn('bin write fail',e);}
+}
+
+// ============================================================
+// JOIN
+// ============================================================
+function doJoin(){
+  const nm=document.getElementById('pInput').value.trim();
+  if(!nm){document.getElementById('pInput').focus();return;}
+  pName=nm;
+  pKey='p_'+nm.replace(/\W/g,'_')+'_'+Date.now().toString().slice(-4);
+
+  hide('sLogin'); show('sWait');
+  document.getElementById('wbadge').textContent='👤 '+pName;
+
+  registerAndPoll();
+}
+document.getElementById('pInput').addEventListener('keydown',e=>{if(e.key==='Enter')doJoin();});
+
+async function registerAndPoll(){
+  // Write player entry
+  const state=await binGet()||{started:false,players:{}};
+  state.players=state.players||{};
+  state.players[pKey]={name:pName,score:0,done:false,joined:Date.now()};
+  await binUpdate(state);
+
+  // Poll for start
+  startPollIv=setInterval(async()=>{
+    const s=await binGet();
+    if(s&&s.started===true){
+      clearInterval(startPollIv);
+      doCountdown();
+    }
+  },POLL_MS);
+}
+
+// ============================================================
+// COUNTDOWN
+// ============================================================
+function doCountdown(){
+  hide('sWait'); show('sCdo');
+  const el=document.getElementById('cdNum');
+  let n=3; el.textContent=n;
+  const iv=setInterval(()=>{
+    n--;
+    if(n<=0){
+      clearInterval(iv);
+      el.textContent='GO!';
+      setTimeout(()=>{hide('sCdo');startGame();},700);
+    } else {
+      el.textContent=n;
+      el.style.animation='none'; void el.offsetWidth; el.style.animation='cpop 1s ease';
+    }
+  },1000);
+}
+
+// ============================================================
+// START GAME
+// ============================================================
+function startGame(){
+  active=true;
+  asgn={1:[],2:[],3:[],4:[],5:[],6:[]};
+  hide('sWait'); show('sGame');
+
+  document.getElementById('pnmHdr').textContent=pName;
+  const av=document.getElementById('pavHdr');
+  av.textContent=inits(pName);
+  av.style.background=`linear-gradient(135deg,${avcol(pName)},${avcol(pName+'x')})`;
+
+  renderChars(); renderProjs(); runTimer();
+}
+
+// ============================================================
+// TIMER
+// ============================================================
+function runTimer(){
+  timeLeft=180; updTimer();
+  tiv=setInterval(()=>{ timeLeft--; updTimer(); if(timeLeft<=0){clearInterval(tiv);endGame();}},1000);
+}
+function updTimer(){
+  const m=Math.floor(timeLeft/60),s=timeLeft%60;
+  const el=document.getElementById('tdisp');
+  el.textContent=`${m}:${s.toString().padStart(2,'0')}`;
+  timeLeft<=30?el.classList.add('urg'):el.classList.remove('urg');
+}
+
+// ============================================================
+// SCORING
+// ============================================================
+function calcHealth(){
+  let tot=0,mx=0;
+  PROJS.forEach(pj=>{
+    const as=asgn[pj.id]||[];
+    mx+=pj.needs.length*10+10;
+    if(!as.length)return;
+    if(as.length>=2)tot+=10; else tot+=4;
+    const mn=new Set();
+    as.forEach(cid=>{
+      const c=CHARS.find(x=>x.id===cid);
+      if(!c)return;
+      pj.needs.forEach(nd=>{if(c.skills.includes(nd))mn.add(nd);});
+      const m=c.skills.filter(s=>pj.needs.includes(s)).length;
+      if(m===0)tot-=4;
+      if(c.special)tot+=15;
+    });
+    tot+=mn.size*10;
+  });
+  return Math.max(0,Math.min(97,Math.round((tot/mx)*100)));
+}
+
+async function updHealth(){
+  health=calcHealth();
+  document.getElementById('hnum').textContent=health;
+  const f=document.getElementById('hfill');
+  f.style.width=health+'%';
+  f.style.background=health>=60?'linear-gradient(90deg,#00c17a,#00e5a0)':health>=30?'linear-gradient(90deg,#d4890a,#ffb340)':'linear-gradient(90deg,#c4273c,#ff4d6d)';
+  // push score
+  const state=await binGet();
+  if(state&&state.players&&state.players[pKey]){
+    state.players[pKey].score=health;
+    await binUpdate(state);
+  }
+}
+
+// ============================================================
+// RENDER CHARS
+// ============================================================
+function renderChars(){
+  const asIds=Object.values(asgn).flat();
+  const rem=CHARS.filter(c=>!asIds.includes(c.id)).length;
+  document.getElementById('prem').textContent=rem+' left';
+  document.getElementById('acount').textContent=asIds.length;
+  const list=document.getElementById('clist'); list.innerHTML='';
+
+  CHARS.forEach(ch=>{
+    const isA=asIds.includes(ch.id);
+    const d=document.createElement('div');
+    d.className=`cc${ch.special?' special':''}${isA?' assigned':''}`;
+    d.draggable=!isA; d.dataset.cid=ch.id;
+    const col=avcol(ch.name);
+    const sHTML=ch.skills.slice(0,ch.special?5:3).map(s=>`<span class="sp ${SCAT[s]||'biz'}">${s}</span>`).join('')+(ch.special?`<span class="sp spl">+${ch.skills.length-5} more</span>`:'');
+    d.innerHTML=`<div class="ctop"><div class="cav" style="background:${col}22;color:${col};border:1px solid ${col}44;">${inits(ch.name)}</div><div class="cnm">${ch.name}</div><div class="crole">${ch.role}</div>${ch.special?'<div class="cstar">★</div>':''}</div><div class="cskills">${sHTML}</div>`;
+    if(!isA){
+      d.addEventListener('dragstart',e=>{dragId=ch.id;setTimeout(()=>d.classList.add('dragging'),0);e.dataTransfer.effectAllowed='move';});
+      d.addEventListener('dragend',()=>d.classList.remove('dragging'));
+    }
+    list.appendChild(d);
+  });
+}
+
+// ============================================================
+// RENDER PROJECTS
+// ============================================================
+function renderProjs(){
+  const grid=document.getElementById('pgrid'); grid.innerHTML='';
+  PROJS.forEach(pj=>{
+    const as=asgn[pj.id]||[];
+    const full=as.length>=3;
+    const mn=new Set();
+    as.forEach(cid=>{const c=CHARS.find(x=>x.id===cid);if(c)c.skills.forEach(s=>{if(pj.needs.includes(s))mn.add(s);});});
+    const pct=pj.needs.length>0?Math.round((mn.size/pj.needs.length)*100):0;
+    const scCls=as.length===0?'e':as.length<2?'p':'f';
+    const scLbl=`${as.length}/3`;
+    const bc=pct>=75?'var(--gr)':pct>=40?'var(--am)':'var(--rd)';
+
+    const card=document.createElement('div');
+    card.className=`pjcard${full?' full':''}`;
+    card.dataset.pid=pj.id;
+
+    const needsH=pj.needs.map(n=>`<span class="nchip${mn.has(n)?' matched':''}">${n}</span>`).join('');
+    let slotsH='';
+    for(let i=0;i<3;i++){
+      const cid=as[i];
+      if(!cid){
+        slotsH+=`<div class="slot${i<2?' req':''}">${i<2?'⬡ Required slot':'◯ Optional slot'}</div>`;
+      } else {
+        const c=CHARS.find(x=>x.id===cid);
+        const ratio=c.skills.filter(s=>pj.needs.includes(s)).length/pj.needs.length;
+        const cls=ratio>=.75?'great':ratio>=.35?'ok':'poor';
+        const lbl=ratio>=.75?'Great fit':ratio>=.35?'Partial fit':'Poor fit';
+        slotsH+=`<div class="slot occ ${cls}"><div class="sinn"><span class="snm">${c.name}${c.special?' ★':''}</span><span class="smb ${cls}">${lbl}</span><button class="rx" onclick="removeC(${pj.id},${cid})">×</button></div></div>`;
+      }
+    }
+
+    card.innerHTML=`
+      <div class="pjh">
+        <div class="piw" style="background:${pj.bg}">${pj.icon}</div>
+        <div class="pmeta"><div class="ptit">${pj.name}</div><div class="pind">${pj.industry}</div></div>
+        <div class="psc ${scCls}">${scLbl}</div>
+      </div>
+      <div class="pneeds">${needsH}</div>
+      <div class="pslots">${slotsH}</div>
+      <div class="psrow"><div class="psbg"><div class="psfill" style="width:${pct}%;background:${bc}"></div></div><div class="pslbl" style="color:${bc}">${pct}%</div></div>
+    `;
+
+    if(!full){
+      card.addEventListener('dragover',e=>{e.preventDefault();card.classList.add('dov');});
+      card.addEventListener('dragleave',e=>{if(!card.contains(e.relatedTarget))card.classList.remove('dov');});
+      card.addEventListener('drop',e=>{e.preventDefault();card.classList.remove('dov');if(dragId){assignC(pj.id,dragId);dragId=null;}});
+    }
+    grid.appendChild(card);
+  });
+}
+
+function assignC(pid,cid){
+  if(!active)return;
+  if((asgn[pid]||[]).length>=3)return;
+  Object.keys(asgn).forEach(p=>{asgn[p]=asgn[p].filter(id=>id!==cid);});
+  asgn[pid].push(cid);
+  updHealth(); renderChars(); renderProjs();
+}
+function removeC(pid,cid){
+  if(!active)return;
+  asgn[pid]=asgn[pid].filter(id=>id!==cid);
+  updHealth(); renderChars(); renderProjs();
+}
+
+// ============================================================
+// END GAME
+// ============================================================
+async function endGame(){
+  active=false;
+  const state=await binGet();
+  if(state&&state.players&&state.players[pKey]){
+    state.players[pKey].score=health;
+    state.players[pKey].done=true;
+    await binUpdate(state);
+  }
+  hide('sGame'); show('sResult');
+  document.getElementById('fscore').textContent=health+'%';
+  let icon='🏆',title='Outstanding!',msg='You nailed the allocations!';
+  if(health>=75){icon='🏆';title='Outstanding!';msg='Perfect strategy — your companies are thriving!';}
+  else if(health>=55){icon='🎯';title='Great Work!';msg='Strong performance! Small tweaks would push it higher.';}
+  else if(health>=35){icon='📈';title='Good Effort!';msg='Companies are recovering. Think more about skill-project fit!';}
+  else{icon='⚠️';title='Needs Improvement';msg='Companies are struggling. Did you match the right skills?';}
+  document.getElementById('rice').textContent=icon;
+  document.getElementById('rtitle').textContent=title;
+  document.getElementById('rmsg').textContent=msg;
+}
+</script>
+</body>
+</html>
